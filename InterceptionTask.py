@@ -231,4 +231,4 @@ dist_fin = DataFrame(fin_dist, columns ='FinalDistance')
 
 FINAL = pd.concat([ID, dot_coordinates, square_coord, velocity, dist_fin], axis = 1)
 
-FINAL.to_csv('Final.csv', sep = '\t', float_format='%.2f', index=False)
+FINAL.to_csv('Final.csv', sep = ',', float_format='%.2f', index=False)
