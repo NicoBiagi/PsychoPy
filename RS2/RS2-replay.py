@@ -17,6 +17,7 @@ import numpy as np
 import matplotlib as mpl
 from psychopy import visual, core, event
 import statistics, math
+import platform
 
 # clear the console
 os.system('clear')
@@ -24,9 +25,28 @@ os.system('clear')
 # suppres sceintific notation
 pd.set_option('display.float_format', lambda x: '%.3f' % x)
 
+# detect Operatying System
+os_name = platform.system()
+
+# define the path depending on the OS
+if (os_name == 'Darwin'):
+    path = '/Users/nico/OneDrive - University of Reading/PhD/Undergraduate Project/2nd Project/Script'
+    screenXpix=1400
+    screenYpix=900
+    
+elif (os_name == 'Windows'):
+    path = 'C:\\Users\\zj903545\\Documents\\GitHub\\PsychoPy\\RS2'
+    screenXpix=1920
+    screenYpix=1080
+    
+else:
+    print('Error 404 os not found (?!)')
+
+# change the current folder
+os.chdir(path)
+
 # load the csv file 
 data = pd.read_csv('RS2-ID-8.csv')
-#data = pd.read_csv('RS2-replay.csv')
 
 X = data["xp"]
 
@@ -39,9 +59,6 @@ Y = data["yp"]
 Y = Y[:-remove]
 Y = Y[Y.index % 3 == 0]
 
-
-screenXpix=1920
-screenYpix=1080
 # create a new window in fullscreen
 win = visual.Window(
     size = [screenXpix, screenYpix], 
@@ -55,27 +72,29 @@ win = visual.Window(
 # make the mouse invisible
 win.mouseVisible = False
 
-
-
+# get the tms location
 tms = pd.unique(data['TMS_area'])
+
+# get the session
 session = pd.unique(data['session'])
 
-for T in range(0,len(tms)):
-    tms_filter = tms[T]
+
+for T in range(0,1):
     
-    subset = data.loc[data['TMS_area'] == tms_filter]
+    subset = data.loc[data['TMS_area'] == tms[T]]
     
-    for S in range (0, len(session)):
+    for S in range (0,1):
+        
         subset2 = subset.loc[subset['session'] == session[S]]
         
-       trials = pd.unique(subset2['trial_num']) 
-       
-       for N in range(0, len(trials)):
-           
-           id_data = subset2.loc[subset2['trial_num'] == trials[N]]
+        trials = pd.unique(subset2['trial_num']) 
+        
+        for N in range(0, 1):
+            
+            id_data = subset2.loc[subset2['trial_num'] == trials[N]]
     
 
-            for z in range(1,200):
+            for z in range(0,len(id_data)):
                 
                 dot_xys = []
                 dot_x = round(X.iloc[z])
