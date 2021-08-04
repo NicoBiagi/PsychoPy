@@ -6,6 +6,12 @@ Created on Tue Jul  6 11:17:27 2021
 @author: nicobiagi
 """
 
+try:
+    from IPython import get_ipython
+    get_ipython().magic('clear')
+    get_ipython().magic('reset -f')
+except:
+    pass
 # Import modules
 import os, re
 import glob
@@ -16,12 +22,7 @@ from psychopy import visual, core, event
 import statistics, math
 import platform
 
-try:
-    from IPython import get_ipython
-    get_ipython().magic('clear')
-    get_ipython().magic('reset -f')
-except:
-    pass
+
 
 # suppres sceintific notation
 pd.set_option('display.float_format', lambda x: '%.3f' % x)
@@ -31,7 +32,7 @@ os_name = platform.system()
 
 # define the path depending on the OS
 if (os_name == 'Darwin'):
-    path = '/Users/nico/OneDrive - University of Reading/PhD/Undergraduate Project/2nd Project/Script'
+    path = "/Users/nico/Documents/GitHub/PsychoPy/RS2"
     screenXpix=1400
     screenYpix=900
     
