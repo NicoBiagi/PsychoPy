@@ -6,9 +6,6 @@ Created on Tue Jul  6 11:17:27 2021
 @author: nicobiagi
 """
 
-# clear the variable explorer
-#%reset -f
-
 # Import modules
 import os, re
 import glob
@@ -19,8 +16,12 @@ from psychopy import visual, core, event
 import statistics, math
 import platform
 
-# clear the console
-os.system('clear')
+try:
+    from IPython import get_ipython
+    get_ipython().magic('clear')
+    get_ipython().magic('reset -f')
+except:
+    pass
 
 # suppres sceintific notation
 pd.set_option('display.float_format', lambda x: '%.3f' % x)
