@@ -55,32 +55,52 @@ win = visual.Window(
 # make the mouse invisible
 win.mouseVisible = False
 
-for z in range(1,200):
-    
-    dot_xys = []
-    dot_x = round(X.iloc[z])
-    dot_x = (screenXpix/2)-dot_x
-    dot_y = round(Y.iloc[z])
-    dot_y = (screenYpix/2)-dot_y
-    
-    dot_xys.append([dot_x, dot_y])
 
-    dot_stim = visual.ElementArrayStim(
-        win=win,
-        units="pix",
-        nElements=len(dot_xys),
-        elementTex=None,
-        elementMask="circle",
-        xys=dot_xys,
-        sizes=20,
-        colors='white',
-        colorSpace='rgb'
-    )
 
-    dot_stim.draw()
-    # flip to the screen
-    win.flip()
-    #wait 1 second
+tms = pd.unique(data['TMS_area'])
+session = pd.unique(data['session'])
+
+for T in range(0,len(tms)):
+    tms_filter = tms[T]
+    
+    subset = data.loc[data['TMS_area'] == tms_filter]
+    
+    for S in range (0, len(session)):
+        subset2 = subset.loc[subset['session'] == session[S]]
+        
+       trials = pd.unique(subset2['trial_num']) 
+       
+       for N in range(0, len(trials)):
+           
+           id_data = subset2.loc[subset2['trial_num'] == trials[N]]
+    
+
+            for z in range(1,200):
+                
+                dot_xys = []
+                dot_x = round(X.iloc[z])
+                dot_x = (screenXpix/2)-dot_x
+                dot_y = round(Y.iloc[z])
+                dot_y = (screenYpix/2)-dot_y
+                
+                dot_xys.append([dot_x, dot_y])
+            
+                dot_stim = visual.ElementArrayStim(
+                    win=win,
+                    units="pix",
+                    nElements=len(dot_xys),
+                    elementTex=None,
+                    elementMask="circle",
+                    xys=dot_xys,
+                    sizes=20,
+                    colors='white',
+                    colorSpace='rgb'
+                )
+            
+                dot_stim.draw()
+                # flip to the screen
+                win.flip()
+                #wait 1 second
 
     
     
