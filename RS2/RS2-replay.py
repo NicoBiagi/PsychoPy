@@ -24,12 +24,6 @@ os.system('clear')
 # suppres sceintific notation
 pd.set_option('display.float_format', lambda x: '%.3f' % x)
 
-# select the path were the files are
-path = '/Users/nico/OneDrive - University of Reading/PhD/Undergraduate Project/2nd Project/Script/TMS Muller-Lyer/DATA/PPT'
-
-# change the wd to the path
-os.chdir(path)
-
 # load the csv file 
 data = pd.read_csv('RS2-ID-8.csv')
 #data = pd.read_csv('RS2-replay.csv')
@@ -46,8 +40,8 @@ Y = Y[:-remove]
 Y = Y[Y.index % 3 == 0]
 
 
-screenXpix=1440
-screenYpix=900
+screenXpix=1920
+screenYpix=1080
 # create a new window in fullscreen
 win = visual.Window(
     size = [screenXpix, screenYpix], 
@@ -65,7 +59,9 @@ for z in range(1,200):
     
     dot_xys = []
     dot_x = round(X.iloc[z])
+    dot_x = (screenXpix/2)-dot_x
     dot_y = round(Y.iloc[z])
+    dot_y = (screenYpix/2)-dot_y
     
     dot_xys.append([dot_x, dot_y])
 
@@ -76,7 +72,7 @@ for z in range(1,200):
         elementTex=None,
         elementMask="circle",
         xys=dot_xys,
-        sizes=100,
+        sizes=20,
         colors='white',
         colorSpace='rgb'
     )
