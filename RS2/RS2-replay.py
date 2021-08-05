@@ -23,10 +23,10 @@ import statistics, math
 import platform
 from psychopy.hardware import keyboard
 
-
-kb = keyboard.Keyboard()
-
-
+key_resp = keyboard.Keyboard()
+key_resp.keys = []
+key_resp.rt = []
+_key_resp_allKeys = []
 
 # suppres sceintific notation
 pd.set_option('display.float_format', lambda x: '%.3f' % x)
@@ -102,7 +102,6 @@ for T in range(0,1):
             X1 = X[X.index % 3 == 0]
             Y1 = Y[Y.index % 3 == 0]
 
-    
 
             for z in range(0,len(X1)):
                 
@@ -161,16 +160,16 @@ for T in range(0,1):
                 # flip everything on the screen
                 win.flip()
                 
-            # wait for keypresses here
-            keys = kb.getKeys(['right', 'left', 'q'], waitRelease=True)
-            for thisKey in keys:
-                if thisKey=='q':  # it is equivalent to the string 'q'
-                    core.quit()
-                else:
-                    print(thisKey.name, thisKey.tDown, thisKey.rt)
-            tempArray = [keys[0]]
-            #tempArray = [id, tms[T],session[S], trials[N], resp_key[0]]
-            responses.append(tempArray)
+                continueRoutine = True
+                while continueRoutine:    
+                # wait for keypresses here
+                    theseKeys = key_resp.getKeys(keyList=['left', 'right', 'q', 'space'], waitRelease=False)
+                    _key_resp_allKeys.extend(theseKeys)
+                    if len(_key_resp_allKeys):
+                        key_resp.keys = _key_resp_allKeys[-1].name  # just the last key pressed
+                        key_resp.rt = _key_resp_allKeys[-1].rt 
+                        responses.append(key_resp.keys)
+                        continueRoutine= False
     
 # close the screen
 win.close()
