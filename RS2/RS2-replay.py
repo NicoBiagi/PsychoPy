@@ -64,12 +64,16 @@ win = visual.Window(
 # make the mouse invisible
 win.mouseVisible = False
 
+# get the id 
+id = pd.unique(data['ID'])
+
 # get the tms location
 tms = pd.unique(data['TMS_area'])
 
 # get the session
 session = pd.unique(data['session'])
 
+responses=[]
 
 for T in range(0,1):
     
@@ -79,10 +83,10 @@ for T in range(0,1):
         
         subset2 = subset.loc[subset['session'] == session[S]]
         
-        trials = pd.unique(subset2['trial_num']) 
+        trials = pd.unique(subset2['trial_num'])
+        txt_id = "Participant {}, TMS: {}, session: {}".format(id, tms[T], session[S])
         
-        for N in range(0, 1):
-            
+        for N in range(0, 2):
             id_data = subset2.loc[subset2['trial_num'] == trials[N]]
             
             X = id_data["xp"]
@@ -91,23 +95,17 @@ for T in range(0,1):
             X = X.dropna()
             Y = Y.dropna()
             
-            remove = round(len(X)*0.75)
-            
-            X = X[:-remove]
-            X = X[X.index % 3 == 0]  # Selects every 3rd raw starting from 0
-            
-            
-            Y = Y[:-remove]
-            Y = Y[Y.index % 3 == 0]
+            X1 = X[X.index % 3 == 0]
+            Y1 = Y[Y.index % 3 == 0]
 
     
 
-            for z in range(0,len(X)):
+            for z in range(0,len(X1)):
                 
                 dot_xys = []
-                dot_x = round(X.iloc[z])
+                dot_x = round(X1.iloc[z])
                 dot_x = (screenXpix/2)-dot_x
-                dot_y = round(Y.iloc[z])
+                dot_y = round(Y1.iloc[z])
                 dot_y = (screenYpix/2)-dot_y
                 
                 dot_xys.append([dot_x, dot_y])
@@ -135,14 +133,34 @@ for T in range(0,1):
                     colors='red',
                     colorSpace='rgb'
                 )
-            
-                dot_stim.draw()
+                
+                txt = "Trial n: {}".format(trials[N])
+                
+                # define text for trial number that goes at the top of the screen
+                text_trial = visual.TextStim(win=win, text=txt, pos=[0.0, 500.0])
+                
+                # define text for info about the task that goes at the bottom of the screen
+                text_id = visual.TextStim(win=win, text=txt_id, pos=[0.0, -500.0])
+                
+                # draw the fixation dot
                 fix_dot.draw()
-                # flip to the screen
+                
+                # draw the eye-movement dot
+                dot_stim.draw()
+                
+                # draw the trial number text
+                text_trial.draw()
+                
+                # draw the info text
+                text_id.draw()
+                
+                # flip everything on the screen
                 win.flip()
-                #wait 1 second
-
-    
+                
+            event.waitKeys()
+            resp_key = event.getKeys(keyList= ['left', 'right', 'q'])
+            tempArray = [id, tms[T],session[S], trials[N], resp_key[0]]
+            responses.append(tempArray)
     
 # close the screen
 win.close()
