@@ -50,16 +50,6 @@ os.chdir(path)
 # load the csv file 
 data = pd.read_csv('RS2-ID-8.csv')
 
-X = data["xp"]
-
-remove = round(len(X)*0.75)
-
-X = X[:-remove]
-X = X[X.index % 3 == 0]  # Selects every 3rd raw starting from 0
-
-Y = data["yp"]
-Y = Y[:-remove]
-Y = Y[Y.index % 3 == 0]
 
 # create a new window in fullscreen
 win = visual.Window(
@@ -94,9 +84,25 @@ for T in range(0,1):
         for N in range(0, 1):
             
             id_data = subset2.loc[subset2['trial_num'] == trials[N]]
+            
+            X = id_data["xp"]
+            Y = id_data["yp"]
+            
+            X = X.dropna()
+            Y = Y.dropna()
+            
+            remove = round(len(X)*0.75)
+            
+            X = X[:-remove]
+            X = X[X.index % 3 == 0]  # Selects every 3rd raw starting from 0
+            
+            
+            Y = Y[:-remove]
+            Y = Y[Y.index % 3 == 0]
+
     
 
-            for z in range(0,len(id_data)):
+            for z in range(0,len(X)):
                 
                 dot_xys = []
                 dot_x = round(X.iloc[z])
