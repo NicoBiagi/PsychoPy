@@ -42,7 +42,7 @@ elif (os_name == 'Windows'):
     screenYpix=1080
     
 else:
-    print('Error 404 os not found (?!)')
+    print('Error 404: os not found (?!)')
 
 # change the current folder
 os.chdir(path)
@@ -117,8 +117,21 @@ for T in range(0,1):
                     colors='white',
                     colorSpace='rgb'
                 )
+                
+                fix_dot =visual.ElementArrayStim(
+                    win=win,
+                    units="pix",
+                    nElements=1,
+                    elementTex=None,
+                    elementMask="circle",
+                    xys=[[0,0]],
+                    sizes=20,
+                    colors='red',
+                    colorSpace='rgb'
+                )
             
                 dot_stim.draw()
+                fix_dot.draw()
                 # flip to the screen
                 win.flip()
                 #wait 1 second
