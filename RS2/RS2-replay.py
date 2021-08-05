@@ -21,6 +21,10 @@ import matplotlib as mpl
 from psychopy import visual, core, event
 import statistics, math
 import platform
+from psychopy.hardware import keyboard
+
+
+kb = keyboard.Keyboard()
 
 
 
@@ -157,9 +161,15 @@ for T in range(0,1):
                 # flip everything on the screen
                 win.flip()
                 
-            event.waitKeys()
-            resp_key = event.getKeys(keyList= ['left', 'right', 'q'])
-            tempArray = [id, tms[T],session[S], trials[N], resp_key[0]]
+            # wait for keypresses here
+            keys = kb.getKeys(['right', 'left', 'q'], waitRelease=True)
+            for thisKey in keys:
+                if thisKey=='q':  # it is equivalent to the string 'q'
+                    core.quit()
+                else:
+                    print(thisKey.name, thisKey.tDown, thisKey.rt)
+            tempArray = [keys[0]]
+            #tempArray = [id, tms[T],session[S], trials[N], resp_key[0]]
             responses.append(tempArray)
     
 # close the screen
