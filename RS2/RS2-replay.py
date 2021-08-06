@@ -21,12 +21,8 @@ import matplotlib as mpl
 from psychopy import visual, core, event
 import statistics, math
 import platform
-from psychopy.hardware import keyboard
-
-key_resp = keyboard.Keyboard()
-key_resp.keys = []
-key_resp.rt = []
-_key_resp_allKeys = []
+import time
+import keyboard as kb
 
 # suppres sceintific notation
 pd.set_option('display.float_format', lambda x: '%.3f' % x)
@@ -77,7 +73,7 @@ tms = pd.unique(data['TMS_area'])
 # get the session
 session = pd.unique(data['session'])
 
-responses=[]
+response=[]
 
 for T in range(0,1):
     
@@ -101,76 +97,86 @@ for T in range(0,1):
             
             X1 = X[X.index % 3 == 0]
             Y1 = Y[Y.index % 3 == 0]
-
-
-            for z in range(0,len(X1)):
+            z =0
+            while True:
+                if z >=len(X1):
+                    break
+                else:
+                    z=z+1
+                    dot_xys = []
+                    dot_x = round(X1.iloc[z])
+                    dot_x = (screenXpix/2)-dot_x
+                    dot_y = round(Y1.iloc[z])
+                    dot_y = (screenYpix/2)-dot_y
+                    
+                    dot_xys.append([dot_x, dot_y])
                 
-                dot_xys = []
-                dot_x = round(X1.iloc[z])
-                dot_x = (screenXpix/2)-dot_x
-                dot_y = round(Y1.iloc[z])
-                dot_y = (screenYpix/2)-dot_y
-                
-                dot_xys.append([dot_x, dot_y])
+                    dot_stim = visual.ElementArrayStim(
+                        win=win,
+                        units="pix",
+                        nElements=len(dot_xys),
+                        elementTex=None,
+                        elementMask="circle",
+                        xys=dot_xys,
+                        sizes=20,
+                        colors='white',
+                        colorSpace='rgb'
+                    )
+                    
+                    fix_dot =visual.ElementArrayStim(
+                        win=win,
+                        units="pix",
+                        nElements=1,
+                        elementTex=None,
+                        elementMask="circle",
+                        xys=[[0,0]],
+                        sizes=20,
+                        colors='red',
+                        colorSpace='rgb'
+                    )
+                    
+                    txt = "Trial n: {}".format(trials[N])
+                    
+                    # define text for trial number that goes at the top of the screen
+                    text_trial = visual.TextStim(win=win, text=txt, pos=[0.0, 500.0])
+                    
+                    # define text for info about the task that goes at the bottom of the screen
+                    text_id = visual.TextStim(win=win, text=txt_id, pos=[0.0, -500.0])
+                    
+                    # draw the fixation dot
+                    fix_dot.draw()
+                    
+                    # draw the eye-movement dot
+                    dot_stim.draw()
+                    
+                    # draw the trial number text
+                    text_trial.draw()
+                    
+                    # draw the info text
+                    text_id.draw()
+                    
+                    # flip everything on the screen
+                    win.flip()
             
-                dot_stim = visual.ElementArrayStim(
-                    win=win,
-                    units="pix",
-                    nElements=len(dot_xys),
-                    elementTex=None,
-                    elementMask="circle",
-                    xys=dot_xys,
-                    sizes=20,
-                    colors='white',
-                    colorSpace='rgb'
-                )
-                
-                fix_dot =visual.ElementArrayStim(
-                    win=win,
-                    units="pix",
-                    nElements=1,
-                    elementTex=None,
-                    elementMask="circle",
-                    xys=[[0,0]],
-                    sizes=20,
-                    colors='red',
-                    colorSpace='rgb'
-                )
-                
-                txt = "Trial n: {}".format(trials[N])
-                
-                # define text for trial number that goes at the top of the screen
-                text_trial = visual.TextStim(win=win, text=txt, pos=[0.0, 500.0])
-                
-                # define text for info about the task that goes at the bottom of the screen
-                text_id = visual.TextStim(win=win, text=txt_id, pos=[0.0, -500.0])
-                
-                # draw the fixation dot
-                fix_dot.draw()
-                
-                # draw the eye-movement dot
-                dot_stim.draw()
-                
-                # draw the trial number text
-                text_trial.draw()
-                
-                # draw the info text
-                text_id.draw()
-                
-                # flip everything on the screen
-                win.flip()
-                
-                continueRoutine = True
-                while continueRoutine:    
-                # wait for keypresses here
-                    theseKeys = key_resp.getKeys(keyList=['left', 'right', 'q', 'space'], waitRelease=False)
-                    _key_resp_allKeys.extend(theseKeys)
-                    if len(_key_resp_allKeys):
-                        key_resp.keys = _key_resp_allKeys[-1].name  # just the last key pressed
-                        key_resp.rt = _key_resp_allKeys[-1].rt 
-                        responses.append(key_resp.keys)
-                        continueRoutine= False
-    
+                    try:
+                        if kb.is_pressed('1'): # move forward
+                            print("one")
+                            time.sleep(0.1)
+                            response = response + ["left"]
+                            z=len(X1)
+                            break
+                        elif kb.is_pressed('3'): # move backwards
+                            print("three")
+                            time.sleep(0.1)
+                            response = response + ["right"]
+                            z=len(X1)
+                            break
+                        elif kb.is_pressed('q'): # quit
+                            win.close()
+                        else:
+                            pass
+                    except:
+                        break
 # close the screen
 win.close()
 
