@@ -175,9 +175,9 @@ for T in range(0,1):
                         colorSpace='rgb'
                     )
                     
-                    txt = "Trial n: {}".format(trials[N])
+                    txt = "Trial n: {}, Wing type:".format(trials[N])
                     
-                    rsp_txt = "1: NO, 3: VALID"
+                    rsp_txt = "1: NOT VALID, 2:MAYBE, 3: VALID"
                     
                     # define text for trial number that goes at the top of the screen
                     text_trial = visual.TextStim(win=win, text=txt, pos=[0.0, (screenYpix/2.5)])
