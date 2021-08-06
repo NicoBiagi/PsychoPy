@@ -48,7 +48,7 @@ else:
 os.chdir(path)
 
 # load the csv file 
-data = pd.read_csv('RS2-ID-8.csv')
+data = pd.read_csv('RS2-ID-1.csv')
 
 final_filtering = pd.read_csv('RS2-filtering.csv')
 
@@ -77,6 +77,7 @@ session = pd.unique(data['session'])
 
 response=[]
 filtering =[]
+pixPerDeg = 42.2238
 
 for T in range(0,1):
     
@@ -87,11 +88,26 @@ for T in range(0,1):
         subset2 = subset.loc[subset['session'] == session[S]]
         
         trials = pd.unique(subset2['trial_num'])
+        
+        
         txt_id = "Participant {}, TMS: {}, session: {}".format(id[0], tms[T], session[S])
         
-        for N in range(0, 2):
+        
+        for N in range(0, len(trials)):
             id_data = subset2.loc[subset2['trial_num'] == trials[N]]
             
+            wing = pd.unique(id_data['wing_type'])[0]
+            loc = pd.unique(id_data['stim_loc'])[0]
+            shft_len = pd.unique(id_data['shft_len'])[0]
+            
+            end_xys = []
+            endX = round(shft_len *2 * pixPerDeg)
+            endY = 0.0
+            if loc == -1:
+                endX = -endX
+            end_xys.append([endX, endY])
+            
+
             X = id_data["xp"]
             Y = id_data["yp"]
             
@@ -100,16 +116,18 @@ for T in range(0,1):
             
             X1 = X[X.index % 3 == 0]
             Y1 = Y[Y.index % 3 == 0]
+            
+            
             z =0
             
             while True:
                 
-                if z >=len(X1):
+                if z >len(X1):
                     break
                 
                 else:
-                    
                     z=z+1
+                    
                     dot_xys = []
                     dot_x = round(X1.iloc[z])
                     dot_x = (screenXpix/2)-dot_x
@@ -117,6 +135,7 @@ for T in range(0,1):
                     dot_y = (screenYpix/2)-dot_y
                     
                     dot_xys.append([dot_x, dot_y])
+                    
                 
                     dot_stim = visual.ElementArrayStim(
                         win=win,
@@ -142,6 +161,18 @@ for T in range(0,1):
                         colorSpace='rgb'
                     )
                     
+                    end_stim =visual.ElementArrayStim(
+                        win=win,
+                        units="pix",
+                        nElements=1,
+                        elementTex=None,
+                        elementMask="circle",
+                        xys=end_xys,
+                        sizes=20,
+                        colors='blue',
+                        colorSpace='rgb'
+                    )
+                    
                     txt = "Trial n: {}".format(trials[N])
                     
                     rsp_txt = "1: NO, 3: VALID"
@@ -157,6 +188,8 @@ for T in range(0,1):
                     
                     # draw the fixation dot
                     fix_dot.draw()
+                    
+                    end_stim.draw()
                     
                     # draw the eye-movement dot
                     dot_stim.draw()
@@ -185,17 +218,35 @@ for T in range(0,1):
                             response = response + ["valid"]
                             z=len(X1)
                             filtering.append([id[0], tms[T], session[S], trials[N], response[N]])
-                            break
+                            break                        
                         elif kb.is_pressed('q'): # quit
                             win.close()
+                        elif kb.is_pressed('p'):
+                            time.sleep(0.1)
+                            while True:
+                                try:
+                                    if kb.is_pressed('p'):
+                                        time.sleep(0.1)
+                                        break
+                                    else:
+                                        pass
+                                except:
+                                    break
                         else:
                             pass
                     except:
                         break
+# convert the list to a dataframe
 df = pd.DataFrame(filtering)
+
+# change the name of the columns
 df.columns = ['ID', 'TMS_Area', 'Session', 'Trial_n', 'Validity']
+
+# append the dataframe to the filtering dataframe
 final_filtering = final_filtering.append(df)
+
+# save the new filtering dataframe
 final_filtering.to_csv('RS2-filtering.csv', index=False)
+
 # close the screen
 win.close()
-
