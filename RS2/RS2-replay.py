@@ -106,6 +106,8 @@ for T in range(0,1):
             if loc == -1:
                 endX = -endX
             end_xys.append([endX, endY])
+            print(end_xys)
+            print(loc)
             
 
             X = id_data["xp"]
@@ -130,9 +132,9 @@ for T in range(0,1):
                     
                     dot_xys = []
                     dot_x = round(X1.iloc[z])
-                    dot_x = (screenXpix/2)-dot_x
+                    dot_x = dot_x - (screenXpix/2)
                     dot_y = round(Y1.iloc[z])
-                    dot_y = (screenYpix/2)-dot_y
+                    dot_y = dot_y - (screenYpix/2)
                     
                     dot_xys.append([dot_x, dot_y])
                     
@@ -213,6 +215,12 @@ for T in range(0,1):
                             z=len(X1)
                             filtering.append([id[0], tms[T], session[S], trials[N], response[N]])
                             break
+                        elif kb.is_pressed('2'): # move backwards
+                            time.sleep(0.1)
+                            response = response + ["maybe"]
+                            z=len(X1)
+                            filtering.append([id[0], tms[T], session[S], trials[N], response[N]])
+                            break                        
                         elif kb.is_pressed('3'): # move backwards
                             time.sleep(0.1)
                             response = response + ["valid"]
