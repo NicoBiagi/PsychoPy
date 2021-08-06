@@ -50,6 +50,8 @@ os.chdir(path)
 # load the csv file 
 data = pd.read_csv('RS2-ID-8.csv')
 
+final_filtering = pd.read_csv('RS2-filtering.csv')
+
 
 # create a new window in fullscreen
 win = visual.Window(
@@ -74,6 +76,7 @@ tms = pd.unique(data['TMS_area'])
 session = pd.unique(data['session'])
 
 response=[]
+filtering =[]
 
 for T in range(0,1):
     
@@ -84,7 +87,7 @@ for T in range(0,1):
         subset2 = subset.loc[subset['session'] == session[S]]
         
         trials = pd.unique(subset2['trial_num'])
-        txt_id = "Participant {}, TMS: {}, session: {}".format(id, tms[T], session[S])
+        txt_id = "Participant {}, TMS: {}, session: {}".format(id[0], tms[T], session[S])
         
         for N in range(0, 2):
             id_data = subset2.loc[subset2['trial_num'] == trials[N]]
@@ -98,10 +101,14 @@ for T in range(0,1):
             X1 = X[X.index % 3 == 0]
             Y1 = Y[Y.index % 3 == 0]
             z =0
+            
             while True:
+                
                 if z >=len(X1):
                     break
+                
                 else:
+                    
                     z=z+1
                     dot_xys = []
                     dot_x = round(X1.iloc[z])
@@ -137,11 +144,16 @@ for T in range(0,1):
                     
                     txt = "Trial n: {}".format(trials[N])
                     
+                    rsp_txt = "1: NO, 3: VALID"
+                    
                     # define text for trial number that goes at the top of the screen
-                    text_trial = visual.TextStim(win=win, text=txt, pos=[0.0, 500.0])
+                    text_trial = visual.TextStim(win=win, text=txt, pos=[0.0, (screenYpix/2.5)])
                     
                     # define text for info about the task that goes at the bottom of the screen
-                    text_id = visual.TextStim(win=win, text=txt_id, pos=[0.0, -500.0])
+                    text_id = visual.TextStim(win=win, text=txt_id, pos=[0.0, -(screenYpix/2.5)])
+                    
+                    # define text for response
+                    rsp_text = visual.TextStim(win=win, text=rsp_txt, pos=[-(screenXpix/3), -(screenYpix/2.5)])
                     
                     # draw the fixation dot
                     fix_dot.draw()
@@ -155,21 +167,24 @@ for T in range(0,1):
                     # draw the info text
                     text_id.draw()
                     
+                    # draw the response info11
+                    rsp_text.draw()
+                    
                     # flip everything on the screen
                     win.flip()
             
                     try:
                         if kb.is_pressed('1'): # move forward
-                            print("one")
                             time.sleep(0.1)
-                            response = response + ["left"]
+                            response = response + ["non_valid"]
                             z=len(X1)
+                            filtering.append([id[0], tms[T], session[S], trials[N], response[N]])
                             break
                         elif kb.is_pressed('3'): # move backwards
-                            print("three")
                             time.sleep(0.1)
-                            response = response + ["right"]
+                            response = response + ["valid"]
                             z=len(X1)
+                            filtering.append([id[0], tms[T], session[S], trials[N], response[N]])
                             break
                         elif kb.is_pressed('q'): # quit
                             win.close()
@@ -177,6 +192,10 @@ for T in range(0,1):
                             pass
                     except:
                         break
+df = pd.DataFrame(filtering)
+df.columns = ['ID', 'TMS_Area', 'Session', 'Trial_n', 'Validity']
+final_filtering = final_filtering.append(df)
+final_filtering.to_csv('RS2-filtering.csv', index=False)
 # close the screen
 win.close()
 
