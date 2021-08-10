@@ -117,10 +117,7 @@ for T in range(0,len(tms)):
             if loc == -1:
                 endX = -endX
             end_xys.append([endX, endY])
-            print(end_xys)
-            print(loc)
             
-
             X = id_data["xp"]
             Y = id_data["yp"]
             
@@ -188,7 +185,7 @@ for T in range(0,len(tms)):
                     
                     txt = "Trial n: {}, Wing type: {}".format(trials[N], wing_type)
                     
-                    rsp_txt = "1: NOT VALID, 2:MAYBE, 3: VALID"
+                    rsp_txt = "1: VALID, 2:MAYBE, 3: NOT VALID"
                     
                     # define text for trial number that goes at the top of the screen
                     text_trial = visual.TextStim(win=win, text=txt, pos=[0.0, 300])
@@ -222,7 +219,7 @@ for T in range(0,len(tms)):
                     try:
                         if kb.is_pressed('1'): # move forward
                             time.sleep(0.1)
-                            response = response + ["non_valid"]
+                            response = response + ["valid"]
                             z=len(X1)
                             filtering.append([id[0], tms[T], session[S], trials[N], response[N]])
                             break
@@ -234,11 +231,13 @@ for T in range(0,len(tms)):
                             break                        
                         elif kb.is_pressed('3'): # move backwards
                             time.sleep(0.1)
-                            response = response + ["valid"]
+                            response = response + ["not_valid"]
                             z=len(X1)
                             filtering.append([id[0], tms[T], session[S], trials[N], response[N]])
                             break                        
-                        elif kb.is_pressed('q'): # quit
+                        elif kb.is_pressed('q'):
+                            time.sleep(0.1)
+                            break# quit
                             win.close()
                         elif kb.is_pressed('p'):
                             time.sleep(0.1)
