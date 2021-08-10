@@ -189,13 +189,13 @@ for T in range(0,len(tms)):
                     rsp_txt = "1: VALID, 2:MAYBE, 3: NOT VALID"
                     
                     # define text for trial number that goes at the top of the screen
-                    text_trial = visual.TextStim(win=win, text=txt, pos=[0.0, 300])
+                    text_trial = visual.TextStim(win=win, text=txt, pos=[0.0, 400])
                     
                     # define text for info about the task that goes at the bottom of the screen
-                    text_id = visual.TextStim(win=win, text=txt_id, pos=[0.0, -300])
+                    text_id = visual.TextStim(win=win, text=txt_id, pos=[0.0, -400])
                     
                     # define text for response
-                    rsp_text = visual.TextStim(win=win, text=rsp_txt, pos=[-(screenXpix/3), -300])
+                    rsp_text = visual.TextStim(win=win, text=rsp_txt, pos=[-(screenXpix/3), -400])
                     
                     # draw the fixation dot
                     fix_dot.draw()
@@ -238,8 +238,9 @@ for T in range(0,len(tms)):
                             break                        
                         elif kb.is_pressed('q'):
                             time.sleep(0.1)
-                            break# quit
                             win.close()
+                            break# quit
+                            
                         elif kb.is_pressed('p'):
                             time.sleep(0.1)
                             while True:
