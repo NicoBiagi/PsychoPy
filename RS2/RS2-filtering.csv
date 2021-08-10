@@ -1,6 +1,2 @@
 ID,TMS_Area,Session,Trial_n,Validity
 0,0,0,0,0
-1,FEF,POST,1,valid
-1,FEF,POST,2,valid
-1,FEF,POST,1,non_valid
-1,FEF,POST,2,non_valid
