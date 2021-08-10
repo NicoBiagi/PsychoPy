@@ -33,8 +33,8 @@ os_name = platform.system()
 # define the path depending on the OS
 if (os_name == 'Darwin'):
     path = "/Users/nico/Documents/GitHub/PsychoPy/RS2"
-    screenXpix=1920
-    screenYpix=1080
+    screenXpix=1400
+    screenYpix=900
     Xmultiplier=1400/1920
     Ymultiplier=900/1080
     
@@ -138,11 +138,12 @@ for T in range(0,len(tms)):
                 else:
                     dot_xys = []
                     dot_x = round(X1.iloc[z])
+                    dot_x = round(dot_x * Xmultiplier)
                     dot_x = dot_x - (screenXpix/2)
-                    #dot_x = round(dot_x * Xmultiplier)
                     dot_y = round(Y1.iloc[z])
+                    dot_y = round(dot_y * Ymultiplier)
                     dot_y = dot_y - (screenYpix/2)
-                    #dot_y = round(dot_y * Ymultiplier)
+                    
                     
                     dot_xys.append([dot_x, dot_y])
                     z=z+1
@@ -191,10 +192,10 @@ for T in range(0,len(tms)):
                     text_trial = visual.TextStim(win=win, text=txt, pos=[0.0, 300])
                     
                     # define text for info about the task that goes at the bottom of the screen
-                    text_id = visual.TextStim(win=win, text=txt_id, pos=[0.0, -500])
+                    text_id = visual.TextStim(win=win, text=txt_id, pos=[0.0, -300])
                     
                     # define text for response
-                    rsp_text = visual.TextStim(win=win, text=rsp_txt, pos=[-(screenXpix/3), -500])
+                    rsp_text = visual.TextStim(win=win, text=rsp_txt, pos=[-(screenXpix/3), -300])
                     
                     # draw the fixation dot
                     fix_dot.draw()
