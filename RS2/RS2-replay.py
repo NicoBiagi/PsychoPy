@@ -33,13 +33,17 @@ os_name = platform.system()
 # define the path depending on the OS
 if (os_name == 'Darwin'):
     path = "/Users/nico/Documents/GitHub/PsychoPy/RS2"
-    screenXpix=1400
-    screenYpix=900
+    screenXpix=1920
+    screenYpix=1080
+    Xmultiplier=1400/1920
+    Ymultiplier=900/1080
     
 elif (os_name == 'Windows'):
     path = 'C:\\Users\\zj903545\\Documents\\GitHub\\PsychoPy\\RS2'
     screenXpix=1920
     screenYpix=1080
+    Xmultiplier=1
+    Ymultiplier=1
     
 else:
     print('Error 404: os not found (?!)')
@@ -93,7 +97,7 @@ for T in range(0,1):
         txt_id = "Participant {}, TMS: {}, session: {}".format(id[0], tms[T], session[S])
         
         
-        for N in range(0, len(trials)):
+        for N in range(0, 2):
             id_data = subset2.loc[subset2['trial_num'] == trials[N]]
             
             wing = pd.unique(id_data['wing_type'])[0]
@@ -124,20 +128,20 @@ for T in range(0,1):
             
             while True:
                 
-                if z >len(X1):
+                if z >=len(X1):
                     break
                 
                 else:
-                    z=z+1
-                    
                     dot_xys = []
                     dot_x = round(X1.iloc[z])
                     dot_x = dot_x - (screenXpix/2)
+                    #dot_x = round(dot_x * Xmultiplier)
                     dot_y = round(Y1.iloc[z])
                     dot_y = dot_y - (screenYpix/2)
+                    #dot_y = round(dot_y * Ymultiplier)
                     
                     dot_xys.append([dot_x, dot_y])
-                    
+                    z=z+1
                 
                     dot_stim = visual.ElementArrayStim(
                         win=win,
