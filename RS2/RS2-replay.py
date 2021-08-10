@@ -83,11 +83,11 @@ response=[]
 filtering =[]
 pixPerDeg = 42.2238
 
-for T in range(0,1):
+for T in range(0,len(tms)):
     
     subset = data.loc[data['TMS_area'] == tms[T]]
     
-    for S in range (0,1):
+    for S in range (0,len(session)):
         
         subset2 = subset.loc[subset['session'] == session[S]]
         
@@ -97,12 +97,19 @@ for T in range(0,1):
         txt_id = "Participant {}, TMS: {}, session: {}".format(id[0], tms[T], session[S])
         
         
-        for N in range(0, 2):
+        for N in range(0, len(trials)):
             id_data = subset2.loc[subset2['trial_num'] == trials[N]]
             
             wing = pd.unique(id_data['wing_type'])[0]
             loc = pd.unique(id_data['stim_loc'])[0]
             shft_len = pd.unique(id_data['shft_len'])[0]
+            
+            if wing ==-1:
+                wing_type = "outward"
+            elif wing ==1:
+                wing_type = "inward"
+            elif wing==0:
+                wing_type = "flat"
             
             end_xys = []
             endX = round(shft_len *2 * pixPerDeg)
@@ -179,18 +186,18 @@ for T in range(0,1):
                         colorSpace='rgb'
                     )
                     
-                    txt = "Trial n: {}, Wing type:".format(trials[N])
+                    txt = "Trial n: {}, Wing type: {}".format(trials[N], wing_type)
                     
                     rsp_txt = "1: NOT VALID, 2:MAYBE, 3: VALID"
                     
                     # define text for trial number that goes at the top of the screen
-                    text_trial = visual.TextStim(win=win, text=txt, pos=[0.0, (screenYpix/2.5)])
+                    text_trial = visual.TextStim(win=win, text=txt, pos=[0.0, 300])
                     
                     # define text for info about the task that goes at the bottom of the screen
-                    text_id = visual.TextStim(win=win, text=txt_id, pos=[0.0, -(screenYpix/2.5)])
+                    text_id = visual.TextStim(win=win, text=txt_id, pos=[0.0, -500])
                     
                     # define text for response
-                    rsp_text = visual.TextStim(win=win, text=rsp_txt, pos=[-(screenXpix/3), -(screenYpix/2.5)])
+                    rsp_text = visual.TextStim(win=win, text=rsp_txt, pos=[-(screenXpix/3), -500])
                     
                     # draw the fixation dot
                     fix_dot.draw()
