@@ -41,100 +41,123 @@ else:
 # change the current folder
 os.chdir(path)
 
-# load the csv file 
-data = pd.read_csv('RS2-ID-1.csv')
+extension  = 'csv'
 
-# get the id 
-id = pd.unique(data['ID'])
+myOnDict = []
+result = glob.glob('*.{}'.format(extension))
 
-# get the tms location
-tms = pd.unique(data['TMS_area'])
+res = [x for x in result if re.search('ID', x)]
 
-# get the session
-session = pd.unique(data['session'])
+res.sort()
 
+final = pd.DataFrame()
 
-response=pd.DataFrame() 
-filtering =[]
-pixPerDeg = 42.2238
-xCenter = 960
-yCenter = 540
-
-for T in range(0,len(tms)):
+for x in range(0,len(res)):
     
-    subset = data.loc[data['TMS_area'] == tms[T]]
+    # select the
+    file = res[x]
+
+    # load the csv file 
+    data = pd.read_csv(file)
     
-    for S in range (0,len(session)):
+    print(file)
+    
+    # get the id 
+    id = pd.unique(data['ID'])
+    
+    # get the tms location
+    tms = pd.unique(data['TMS_area'])
+    
+    # get the session
+    session = pd.unique(data['session'])
+    
+    
+    response=pd.DataFrame() 
+    filtering =[]
+    pixPerDeg = 42.2238
+    xCenter = 960
+    yCenter = 540
+    
+    for T in range(0,len(tms)):
         
-        subset2 = subset.loc[subset['session'] == session[S]]
+        subset = data.loc[data['TMS_area'] == tms[T]]
         
-        trials = pd.unique(subset2['trial_num'])
-        
-        for N in range(0, len(trials)):
-            id_data = subset2.loc[subset2['trial_num'] == trials[N]]
+        for S in range (0,len(session)):
             
-            wing = pd.unique(id_data['wing_type'])[0]
-            loc = pd.unique(id_data['stim_loc'])[0]
-            shft_len = pd.unique(id_data['shft_len'])[0]
+            subset2 = subset.loc[subset['session'] == session[S]]
             
+            trials = pd.unique(subset2['trial_num'])
             
-            end_xys = []
-            endX = round(shft_len *2 * pixPerDeg)
-            endY = yCenter
-            Y_range_min = endY - pixPerDeg
-            Y_range_max = endY + pixPerDeg
+            for N in range(0, len(trials)):
+                id_data = subset2.loc[subset2['trial_num'] == trials[N]]
+                
+                wing = pd.unique(id_data['wing_type'])[0]
+                loc = pd.unique(id_data['stim_loc'])[0]
+                shft_len = pd.unique(id_data['shft_len'])[0]
+                
+                
+                end_xys = []
+                endX = round(shft_len *2 * pixPerDeg)
+                endY = yCenter
+                Y_range_min = endY - pixPerDeg
+                Y_range_max = endY + pixPerDeg
+                
+                
+                if wing == 0: # flat |-|
+                    if loc == -1:
+                        endX = xCenter-endX
+                        range_min = endX - pixPerDeg
+                        range_max = endX + pixPerDeg
+                        end_xys = id_data[(id_data['xp'] >= range_min) & (id_data['xp'] <= range_max)]
+                        end_xys = end_xys[(end_xys['yp'] >= Y_range_min) & (end_xys['yp'] <= Y_range_max)]
+                        
+                    elif loc == 0:
+                        endX = xCenter + endX
+                        range_min = endX - pixPerDeg
+                        range_max = endX + pixPerDeg
+                        end_xys = id_data[(id_data['xp'] >= range_min) & (id_data['xp'] <= range_max)]
+                        end_xys = end_xys[(end_xys['yp'] >= Y_range_min) & (end_xys['yp'] <= Y_range_max)]
+    
+                
+                elif wing ==-1: #inward <->
+                    if loc ==-1: # left
+                        endX = xCenter-endX
+                        range_min = endX - pixPerDeg
+                        range_max = endX + (2*pixPerDeg)
+                        end_xys = id_data[(id_data['xp'] >= range_min) & (id_data['xp'] <= range_max)]
+                        end_xys = end_xys[(end_xys['yp'] >= Y_range_min) & (end_xys['yp'] <= Y_range_max)]
+    
+                        
+                    elif loc ==0: # right
+                        endX = xCenter + endX
+                        range_min = endX - (2*pixPerDeg)
+                        range_max = endX + pixPerDeg
+                        end_xys = id_data[(id_data['xp'] > (endX-(2*pixPerDeg))) & (id_data['xp'] < (endX+pixPerDeg))]
+                        end_xys = end_xys[(end_xys['yp'] >= Y_range_min) & (end_xys['yp'] <= Y_range_max)]
+    
+                        
+                elif wing == 1: # outward >-<
+                    if loc == -1: # left
+                        endX = xCenter-endX
+                        range_min = endX - (2*pixPerDeg)
+                        range_max = endX + pixPerDeg
+                        end_xys = id_data[(id_data['xp'] >= range_min) & (id_data['xp'] <= range_max)]
+                        
+                    elif loc == 0:
+                        endX = xCenter + endX
+                        range_min = endX - pixPerDeg
+                        range_max = endX + (2*pixPerDeg)
+                        end_xys = id_data[(id_data['xp'] > (endX-(2*pixPerDeg))) & (id_data['xp'] < (endX+pixPerDeg))]
+                
             
-            
-            if wing == 0: # flat |-|
-                if loc == -1:
-                    endX = xCenter-endX
-                    range_min = endX - pixPerDeg
-                    range_max = endX + pixPerDeg
-                    end_xys = id_data[(id_data['xp'] >= range_min) & (id_data['xp'] <= range_max)]
-                    end_xys = end_xys[(end_xys['yp'] >= Y_range_min) & (end_xys['yp'] <= Y_range_max)]
-                    
-                elif loc == 0:
-                    endX = xCenter + endX
-                    range_min = endX - pixPerDeg
-                    range_max = endX + pixPerDeg
-                    end_xys = id_data[(id_data['xp'] >= range_min) & (id_data['xp'] <= range_max)]
-                    end_xys = end_xys[(end_xys['yp'] >= Y_range_min) & (end_xys['yp'] <= Y_range_max)]
-
-            
-            elif wing ==-1: #inward <->
-                if loc ==-1: # left
-                    endX = xCenter-endX
-                    range_min = endX - pixPerDeg
-                    range_max = endX + (2*pixPerDeg)
-                    end_xys = id_data[(id_data['xp'] >= range_min) & (id_data['xp'] <= range_max)]
-                    end_xys = end_xys[(end_xys['yp'] >= Y_range_min) & (end_xys['yp'] <= Y_range_max)]
-
-                    
-                elif loc ==0: # right
-                    endX = xCenter + endX
-                    range_min = endX - (2*pixPerDeg)
-                    range_max = endX + pixPerDeg
-                    end_xys = id_data[(id_data['xp'] > (endX-(2*pixPerDeg))) & (id_data['xp'] < (endX+pixPerDeg))]
-                    end_xys = end_xys[(end_xys['yp'] >= Y_range_min) & (end_xys['yp'] <= Y_range_max)]
-
-                    
-            elif wing == 1: # outward >-<
-                if loc == -1: # left
-                    endX = xCenter-endX
-                    range_min = endX - (2*pixPerDeg)
-                    range_max = endX + pixPerDeg
-                    end_xys = id_data[(id_data['xp'] >= range_min) & (id_data['xp'] <= range_max)]
-                    
-                elif loc == 0:
-                    endX = xCenter + endX
-                    range_min = endX - pixPerDeg
-                    range_max = endX + (2*pixPerDeg)
-                    end_xys = id_data[(id_data['xp'] > (endX-(2*pixPerDeg))) & (id_data['xp'] < (endX+pixPerDeg))]
-            
-        
-                    
-            # append the dataframe to the filtering dataframe
-            response = response.append(end_xys)
+                        
+                # append the dataframe to the filtering dataframe
+                response = response.append(end_xys)
+                
+    final = final.append(response)
+                
+    # save the new filtering dataframe
+final.to_csv('RS2-filtering_new.csv', index=False)
 
 
                 

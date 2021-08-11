@@ -1,0 +1,46 @@
+---
+title: "NEW-RS2"
+author: "Nico Biagi"
+date: "11/08/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Libraries and working directory
+```{r echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
+library("yarrr")
+library("tidyr")
+library("tidyverse")
+library("dplyr")
+library("eyelinker")
+library("ggridges")
+library("ggplot2")
+library("rstatix")
+library("ggpubr")
+library("ggpirate")
+
+# clear the global environment
+rm(list = ls())
+
+# turn this off if you want scientific notation
+options(scipen = 999)
+
+# set the wd to the location of this markdown
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+
+# load the txt file that contain "RS2"
+files <- list.files(path=".",recursive=F,pattern="RS2-filtering_new.csv")
+
+data <- read.csv(files)
+```
+
+```{r}
+data %>% 
+  group_by(ID, TMS_area, session, wing_type, stim_loc, shft_len ) %>% 
+  summarise(trials = unique(trial_num))->new_data
+```
+
+
