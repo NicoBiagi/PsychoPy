@@ -35,12 +35,92 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 files <- list.files(path=".",recursive=F,pattern="RS2-filtering_new.csv")
 
 data <- read.csv(files)
+
+
+et <- read.csv("Raw-RS2-ET.csv")
+
 ```
+
 
 ```{r}
 data %>% 
-  group_by(ID, TMS_area, session, wing_type, stim_loc, shft_len ) %>% 
+  group_by(PID, TMS_area, session, wing_type, stim_loc, shft_len ) %>% 
   summarise(trials = unique(trial_num))->new_data
+colnames(new_data) <- c("PID","TMS_area", "session", "wing_type", "stim_loc", "shft_len", "trial_num")
 ```
 
+```{r}
+
+
+df <- left_join(et, new_data, by = c("PID", "trial_num" , "session", "TMS_area"))
+
+df %>% 
+  drop_na()->df2
+
+df2$Percentage <- df2$CURRENT_SAC_AMPLITUDE/ (df2$shft_len*2)*100
+```
+
+```{r}
+df2 %>% 
+  filter(latency >= 100 & latency <= 500)->df2_time
+
+df2_time$delta <- df2_time$CURRENT_SAC_END_X - df2_time$CURRENT_SAC_START_X
+
+df2_time %>% 
+  filter(
+    # stim on the left-> delta must be negative
+    stim_loc == "Left" &  delta <0 |
+      # stim on the right -> delta must be positive
+      stim_loc == "Right" &  delta >0
+  )->df2_time_loc
+
+```
+
+```{r}
+df2_time_loc %>% 
+  filter(Percentage>25 & Percentage <=200) -> final_filter
+
+final_filter %>% 
+  group_by(PID, TMS_area, session, trial_num) %>% 
+  top_n(1, Percentage)-> df_max
+
+df_max %>%
+  group_by(PID, TMS_area, session, wing_type)%>%
+  summarise(ampl = mean(Percentage))-> grand_mean
+
+grand_mean <- grand_mean %>%
+    arrange(factor(wing_type, levels = c("Inward", "Flat", "Outward")), wing_type,session) %>%
+    mutate(TMS_area = factor(TMS_area, levels = c("FEF", "SPL")),
+           session = factor(session, levels = c("PRE", "POST")),
+           wing_type = factor(wing_type, levels = c("Inward", "Flat", "Outward")))
+
+step1 <- unite(grand_mean,
+               col = "TMS_area_session_wing_type",
+               TMS_area, session, wing_type,
+               sep = "_")
+grand_mean_wide <- spread(step1,
+                          key = "TMS_area_session_wing_type",
+                          value = "ampl"
+)
+```
+
+```{r}
+pirateplot(formula = ampl ~ wing_type+session+TMS_area,
+             data = grand_mean, #select data frame
+             main = "-", # change title
+             xlab = "", # change x-axis label
+             ylab = "Saccades Amplitude", # change y-axis label
+             pal = "southpark", # southpark color palette
+             bean.f.o = .6, # Bean fill
+             point.o = .8, # Points
+             inf.f.o = .7, # Inference fill
+             inf.b.o = .8, # Inference border
+             avg.line.o = 1, # Average line
+             inf.f.col = "white", # Inf fill col
+             inf.b.col = "black", # Inf border col
+             avg.line.col = "black", # avg line col
+             point.cex = .7,
+             cex.names=.65,
+             sortx = "sequential")
+```
 
