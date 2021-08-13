@@ -21,6 +21,8 @@ library("ggplot2")
 library("rstatix")
 library("ggpubr")
 library("ggpirate")
+library("haven")
+
 
 # clear the global environment
 rm(list = ls())
@@ -36,10 +38,42 @@ files <- list.files(path=".",recursive=F,pattern="RS2-filtering_new.csv")
 
 data <- read.csv(files)
 
-
+fix <- read.csv("FIX-RS2.csv")
 et <- read.csv("Raw-RS2-ET.csv")
 
 ```
+
+```{r}
+fix$x_min <- 0
+fix$x_max <- 0
+
+for (x in 1:nrow(fix)){
+  if (fix$stim_loc[x] == "Left" & fix$shft_len[x]==1.5){
+    fix$x_min[x] <- 766
+    fix$x_max[x] <- 896
+  }else if (fix$stim_loc[x] == "Left" & fix$shft_len[x]==2.5){
+    fix$x_min[x] <- 680
+    fix$x_max[x] <- 810
+  }else if (fix$stim_loc[x] == "Right" & fix$shft_len[x]==1.5){
+    fix$x_min[x] <- 1024
+    fix$x_max[x] <- 1154
+  } else if (fix$stim_loc[x] == "Right" & fix$shft_len[x]==2.5){
+    fix$x_min[x] <- 1110
+    fix$x_max[x] <- 1240
+  }
+}
+fix$filter <- NA
+
+fix %>% 
+  filter(axp > x_min & axp < x_max)->new_fix
+
+new_fix %>% 
+  select(PID, TMS_area, session, trial_num, wing_type, stim_loc, shft_len)-> fix_filtering
+
+
+
+```
+
 
 
 ```{r}
@@ -89,10 +123,10 @@ df_max %>%
   summarise(ampl = mean(Percentage))-> grand_mean
 
 grand_mean <- grand_mean %>%
-    arrange(factor(wing_type, levels = c("Inward", "Flat", "Outward")), wing_type,session) %>%
-    mutate(TMS_area = factor(TMS_area, levels = c("FEF", "SPL")),
-           session = factor(session, levels = c("PRE", "POST")),
-           wing_type = factor(wing_type, levels = c("Inward", "Flat", "Outward")))
+  arrange(factor(wing_type, levels = c("Inward", "Flat", "Outward")), wing_type,session) %>%
+  mutate(TMS_area = factor(TMS_area, levels = c("FEF", "SPL")),
+         session = factor(session, levels = c("PRE", "POST")),
+         wing_type = factor(wing_type, levels = c("Inward", "Flat", "Outward")))
 
 step1 <- unite(grand_mean,
                col = "TMS_area_session_wing_type",
@@ -102,25 +136,27 @@ grand_mean_wide <- spread(step1,
                           key = "TMS_area_session_wing_type",
                           value = "ampl"
 )
+
+write_sav(grand_mean_wide, "RS2-ET.sav")
 ```
 
 ```{r}
 pirateplot(formula = ampl ~ wing_type+session+TMS_area,
-             data = grand_mean, #select data frame
-             main = "-", # change title
-             xlab = "", # change x-axis label
-             ylab = "Saccades Amplitude", # change y-axis label
-             pal = "southpark", # southpark color palette
-             bean.f.o = .6, # Bean fill
-             point.o = .8, # Points
-             inf.f.o = .7, # Inference fill
-             inf.b.o = .8, # Inference border
-             avg.line.o = 1, # Average line
-             inf.f.col = "white", # Inf fill col
-             inf.b.col = "black", # Inf border col
-             avg.line.col = "black", # avg line col
-             point.cex = .7,
-             cex.names=.65,
-             sortx = "sequential")
+           data = grand_mean, #select data frame
+           main = "-", # change title
+           xlab = "", # change x-axis label
+           ylab = "Saccades Amplitude", # change y-axis label
+           pal = "southpark", # southpark color palette
+           bean.f.o = .6, # Bean fill
+           point.o = .8, # Points
+           inf.f.o = .7, # Inference fill
+           inf.b.o = .8, # Inference border
+           avg.line.o = 1, # Average line
+           inf.f.col = "white", # Inf fill col
+           inf.b.col = "black", # Inf border col
+           avg.line.col = "black", # avg line col
+           point.cex = .7,
+           cex.names=.65,
+           sortx = "sequential")
 ```
 
